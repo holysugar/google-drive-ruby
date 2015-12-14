@@ -172,6 +172,7 @@ class TestGoogleDrive < Test::Unit::TestCase
       test_collection_title = "#{PREFIX}collection"
       test_file_title = "#{PREFIX}file.txt"
       test_file2_title = "#{PREFIX}file2.txt"
+      test_file3_title = "#{PREFIX}file3.txt"
 
       # Removes test files/collections in the previous run in case the previous run failed.
       for title in [test_file_title, test_collection_title]
@@ -243,9 +244,17 @@ class TestGoogleDrive < Test::Unit::TestCase
       assert{ tfile != nil }
       assert{ tfile.title == test_file_title }
 
+      # Upload file3 to collection directly
+      file3 = session.upload_from_string("", test_file3_title, :content_type => "text/plain", :convert => false, :parents => collection)
+      assert{ root.files("title" => test_file_title, "title-exact" => "true").empty? }
+      tfiles2 = collection.files("title" => test_file3_title, "title-exact" => "true")
+      assert{ tfiles2.size == 1 }
+      assert{ tfiles2[0].title == test_file3_title }
+
       # Deletes files.
       delete_test_file(file, true)
       delete_test_file(file2, true)
+      delete_test_file(file3, true)
       # Ensure the file is removed from collection.
       assert{ collection.files("title" => test_file_title, "title-exact" => "true").empty? }
       # Ensure the file is removed from Google Drive.
